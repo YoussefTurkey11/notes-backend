@@ -1,6 +1,6 @@
 import { StatusCodes } from "http-status-codes";
 import Note from "../models/Note.js";
-import ApiError from "../utils/apiError.js";
+import ApiError from "../../../utils/apiError.js";
 
 export const getAllNotes = async ({ page, limit }) => {
   const skip = (page - 1) * limit;
@@ -12,13 +12,15 @@ export const getAllNotes = async ({ page, limit }) => {
   return notes;
 };
 
-export const getSpecificNote = async ({ id, next }) => {
+export const getSpecificNote = async ({ id }) => {
   const notes = await Note.findById(id);
 
-  if (!notes)
-    next(
-      new ApiError(`No note found for this id: ${id}`, StatusCodes.NOT_FOUND),
+  if (!notes) {
+    throw new ApiError(
+      `No note found for this id: ${id}`,
+      StatusCodes.NOT_FOUND,
     );
+  }
 
   return notes;
 };
@@ -28,33 +30,39 @@ export const createNote = async ({ title, content }) => {
   return newNote;
 };
 
-export const updateNote = async ({ id, title, content, next }) => {
+export const updateNote = async ({ id, title, content }) => {
   const updatedNote = await Note.findByIdAndUpdate(
     { _id: id },
     { title, content },
     { new: true },
   );
 
-  if (!updatedNote)
-    next(
-      new ApiError(`No note found for this id: ${id}`, StatusCodes.NOT_FOUND),
+  if (!updatedNote) {
+    throw new ApiError(
+      `No note found for this id: ${id}`,
+      StatusCodes.NOT_FOUND,
     );
+  }
+
   return updatedNote;
 };
 
-export const deleteNote = async ({ id, next }) => {
+export const deleteNote = async ({ id }) => {
   const deletedNote = await Note.findByIdAndDelete({ _id: id }, { new: true });
 
-  if (!deletedNote)
-    next(
-      new ApiError(`No note found for this id: ${id}`, StatusCodes.NOT_FOUND),
+  if (!deletedNote) {
+    throw new ApiError(
+      `No note found for this id: ${id}`,
+      StatusCodes.NOT_FOUND,
     );
+  }
+
   return deletedNote;
 };
 
-export const deleteAllNotes = async ({ next }) => {
+export const deleteAllNotes = async () => {
   const deletedNotes = await Note.deleteMany({});
 
-  if (!deletedNotes) next(new ApiError(`No note found`, StatusCodes.NOT_FOUND));
+  if (!deletedNotes) throw new ApiError(`No note found`, StatusCodes.NOT_FOUND);
   return deletedNotes;
 };

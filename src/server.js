@@ -1,7 +1,8 @@
 import dotenv from "dotenv";
 import morgan from "morgan";
 import express from "express";
-import notesRoutes from "./routes/notesRoutes.js";
+import notesRoutes from "./modules/notes/routes/notesRoutes.js";
+import authRoutes from "./modules/auth/routes/authRoute.js";
 import { connectDB } from "./config/db.js";
 import rateLimiter from "./middleware/rateLimiter.js";
 import globalError from "./middleware/error.js";
@@ -24,6 +25,7 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 app.use("/api/v1/notes", notesRoutes);
+app.use("/api/v1/auth", authRoutes);
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec)); // swagger-documents
 

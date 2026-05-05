@@ -8,10 +8,6 @@ const userSchema = new mongoose.Schema(
       trim: true,
       required: [true, "This field is required"],
     },
-    slug: {
-      type: String,
-      lowercase: true,
-    },
     email: {
       type: String,
       unique: true,
@@ -32,17 +28,16 @@ const userSchema = new mongoose.Schema(
       default: "user",
     },
     passwordChangeAt: Date,
-    passwordRestToken: String,
-    passwordRestExpire: Date,
+    passwordResetToken: String,
+    passwordResetExpire: Date,
   },
   { timestamps: true },
 );
 
 // Hashing password before save
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
+userSchema.pre("save", async function () {
+  if (!this.isModified("password")) return;
   this.password = await bcrypt.hash(this.password, 12);
-  next();
 });
 
 // Method to compare password

@@ -1,8 +1,8 @@
-import Note from "../models/Note.js";
 import asyncHandler from "express-async-handler";
-import ApiError from "../utils/apiError.js";
-import * as noteService from "../services/noteService.js";
 import { StatusCodes } from "http-status-codes";
+import Note from "../models/Note.js";
+import ApiError from "../../../utils/apiError.js";
+import * as noteService from "../services/noteService.js";
 
 export const getAllNotes = asyncHandler(async (req, res) => {
   const page = req.query.page * 1 || 1;
@@ -13,9 +13,9 @@ export const getAllNotes = asyncHandler(async (req, res) => {
   res.status(StatusCodes.OK).json({ result: notes.length, page, data: notes });
 });
 
-export const getSpecificNote = asyncHandler(async (req, res, next) => {
+export const getSpecificNote = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const notes = await noteService.getSpecificNote({ id, next });
+  const notes = await noteService.getSpecificNote({ id });
 
   res.status(StatusCodes.OK).json({ data: notes });
 });
@@ -28,7 +28,7 @@ export const createNote = asyncHandler(async (req, res) => {
     .json({ message: "You've added new note", data: newNote });
 });
 
-export const updateNote = asyncHandler(async (req, res, next) => {
+export const updateNote = asyncHandler(async (req, res) => {
   const { title, content } = req.body;
   const { id } = req.params;
 
@@ -36,21 +36,20 @@ export const updateNote = asyncHandler(async (req, res, next) => {
     id,
     title,
     content,
-    next,
   });
 
   res.status(StatusCodes.OK).json({ message: "You've updated a note" });
 });
 
-export const deleteNote = asyncHandler(async (req, res, next) => {
+export const deleteNote = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const deletedNote = await noteService.deleteNote({ id, next });
+  const deletedNote = await noteService.deleteNote({ id });
 
   res.status(StatusCodes.OK).json({ message: "You've deleted a note" });
 });
 
-export const deleteAllNotes = asyncHandler(async (_, res, next) => {
-  const deletedNotes = await noteService.deleteAllNotes(next);
+export const deleteAllNotes = asyncHandler(async (_, res) => {
+  const deletedNotes = await noteService.deleteAllNotes();
 
   res.status(StatusCodes.OK).json({ message: "You've deleted all notes" });
 });

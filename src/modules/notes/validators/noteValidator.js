@@ -1,5 +1,5 @@
 import { check } from "express-validator";
-import validatorMiddleware from "../../middleware/validator.js";
+import validatorMiddleware from "../../../middleware/validator.js";
 
 export const getSpecificNoteValidator = [
   check("id").isMongoId().withMessage("Invalid Note Id"),
