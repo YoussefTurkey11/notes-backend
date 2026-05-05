@@ -1,63 +1,56 @@
 import Note from "../models/Note.js";
 import asyncHandler from "express-async-handler";
 import ApiError from "../utils/apiError.js";
+import * as noteService from "../services/noteService.js";
+import { StatusCodes } from "http-status-codes";
 
 export const getAllNotes = asyncHandler(async (req, res) => {
   const page = req.query.page * 1 || 1;
   const limit = req.query.limit * 1 || 10;
-  const skip = (page - 1) * limit;
 
-  const notes = await Note.find({})
-    .sort({ createdAt: -1 })
-    .skip(skip)
-    .limit(limit);
-  res.status(200).json({ result: notes.length, page, data: notes });
+  const notes = await noteService.getAllNotes({ page, limit });
+
+  res.status(StatusCodes.OK).json({ result: notes.length, page, data: notes });
 });
 
-export const getSpecificNote = asyncHandler(async (req, res) => {
+export const getSpecificNote = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
-  const notes = await Note.findById(id);
+  const notes = await noteService.getSpecificNote({ id, next });
 
-  if (!notes) next(new ApiError(`No Category found for this id: ${id}`, 404));
-
-  res.status(200).json({ data: notes });
+  res.status(StatusCodes.OK).json({ data: notes });
 });
 
 export const createNote = asyncHandler(async (req, res) => {
   const { title, content } = req.body;
-  const newNote = await Note.create({ title, content });
-  res.status(201).json({ message: "You've added new note", data: newNote });
+  const newNote = await noteService.createNote({ title, content });
+  res
+    .status(StatusCodes.CREATED)
+    .json({ message: "You've added new note", data: newNote });
 });
 
-export const updateNote = asyncHandler(async (req, res) => {
+export const updateNote = asyncHandler(async (req, res, next) => {
   const { title, content } = req.body;
   const { id } = req.params;
-  const updatedNote = await Note.findByIdAndUpdate(
-    { _id: id },
-    { title, content },
-  );
 
-  if (!updatedNote)
-    next(new ApiError(`No Category found for this id: ${id}`, 404));
+  const updatedNote = await noteService.updateNote({
+    id,
+    title,
+    content,
+    next,
+  });
 
-  res.status(200).json({ message: "You've updated a note" });
+  res.status(StatusCodes.OK).json({ message: "You've updated a note" });
 });
 
-export const deleteNote = asyncHandler(async (req, res) => {
+export const deleteNote = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
-  const deletedNote = await Note.findByIdAndDelete({ _id: id });
+  const deletedNote = await noteService.deleteNote({ id, next });
 
-  if (!deletedNote)
-    next(new ApiError(`No Category found for this id: ${id}`, 404));
-
-  res.status(200).json({ message: "You've deleted a note" });
+  res.status(StatusCodes.OK).json({ message: "You've deleted a note" });
 });
 
-export const deleteAllNotes = asyncHandler(async (_, res) => {
-  const deletedNotes = await Note.deleteMany({});
+export const deleteAllNotes = asyncHandler(async (_, res, next) => {
+  const deletedNotes = await noteService.deleteAllNotes(next);
 
-  if (!deletedNotes)
-    next(new ApiError(`No Category found for this id: ${id}`, 404));
-
-  res.status(200).json({ message: "You've deleted all notes" });
+  res.status(StatusCodes.OK).json({ message: "You've deleted all notes" });
 });

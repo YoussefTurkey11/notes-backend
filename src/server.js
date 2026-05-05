@@ -1,25 +1,34 @@
 import dotenv from "dotenv";
 import morgan from "morgan";
-import e from "express";
+import express from "express";
 import notesRoutes from "./routes/notesRoutes.js";
 import { connectDB } from "./config/db.js";
 import rateLimiter from "./middleware/rateLimiter.js";
 import globalError from "./middleware/error.js";
 import ApiError from "./utils/apiError.js";
+import cors from "cors";
+import corsOptions from "./config/cors/corsOptions.js";
+import cookieParser from "cookie-parser";
+import swaggerUi from "swagger-ui-express";
+import swaggerSpec from "./config/swagger.js";
 
 dotenv.config();
 const port = process.env.PORT;
-const app = e();
-app.use(e.json()); // middleware
+const app = express();
+app.use(express.json()); // middleware
 app.use(rateLimiter); // custom middleware
+app.use(cors(corsOptions)); // CORS-options
+app.use(cookieParser()); // CORS-options
 
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 app.use("/api/v1/notes", notesRoutes);
 
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec)); // swagger-documents
+
 app.use((req, res, next) =>
-  next(ApiError(`Can not find this route: ${req.originalUrl}`, 400)),
+  next(new ApiError(`Can not find this route: ${req.originalUrl}`, 400)),
 ); // Api Error Middleware
 
 app.use(globalError); // error middleware
