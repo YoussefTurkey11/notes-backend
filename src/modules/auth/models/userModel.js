@@ -14,13 +14,18 @@ const userSchema = new mongoose.Schema(
       required: [true, "This field is required"],
       lowercase: true,
     },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    emailVerifyToken: String,
+    emailVerifyExpire: Date,
     phone: String,
     profileImg: String,
     password: {
       type: String,
       required: [true, "This field is required"],
       minLength: [6, "This field must be more than 6 characters"],
-      maxLength: [32, "This field must be less than 32 characters"],
     },
     role: {
       type: String,
@@ -46,7 +51,7 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
 };
 
 // Method to check if password changed after token issued
-userSchema.methods.changedPasswordAfter = async function (JWTTimestamp) {
+userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
   if (this.passwordChangeAt) {
     const changedTimestamp = parseInt(
       this.passwordChangeAt.getTime() / 1000,

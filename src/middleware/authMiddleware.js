@@ -1,29 +1,46 @@
 import { StatusCodes } from "http-status-codes";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import ApiError from "../utils/apiError.js";
+import User from "../modules/auth/models/userModel.js";
 
 dotenv.config();
 
 export const protect = (req, res, next) => {
   let token;
+  const authHeader = req.headers.authorization;
 
-  if (req.header.authorization?.startWith("Bearer")) {
-    token = req.header.authorization.split(" ")[1];
+  if (authHeader?.startsWith("Bearer")) {
+    token = authHeader.split(" ")[1];
   }
 
   if (!token) {
-    return next(ApiError(`Not authorized`, StatusCodes.UNAUTHORIZED));
+    return next(new ApiError(`Not authorized`, StatusCodes.UNAUTHORIZED));
   }
 
-  const decoded = jwt.verify(token, process.env.JWT_SECRET);
-  req.user = decoded;
-  next();
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id);
+
+    if (!user) {
+      return next(new ApiError("User no longer exists", StatusCodes.UNAUTHORIZED));
+    }
+
+    if (user.changedPasswordAfter(decoded.iat)) {
+      return next(new ApiError("Password was changed. Please login again", StatusCodes.UNAUTHORIZED));
+    }
+
+    req.user = decoded;
+    next();
+  } catch (err) {
+    return next(new ApiError("Invalid token", StatusCodes.UNAUTHORIZED));
+  }
 };
 
 export const authorize = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
-      return next(ApiError(`Forbidden`, StatusCodes.FORBIDDEN));
+      return next(new ApiError(`Forbidden`, StatusCodes.FORBIDDEN));
     }
     next();
   };
