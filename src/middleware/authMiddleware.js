@@ -6,7 +6,7 @@ import User from "../modules/auth/models/userModel.js";
 
 dotenv.config();
 
-export const protect = (req, res, next) => {
+export const protect = async (req, res, next) => {
   let token;
   const authHeader = req.headers.authorization;
 
@@ -23,11 +23,18 @@ export const protect = (req, res, next) => {
     const user = await User.findById(decoded.id);
 
     if (!user) {
-      return next(new ApiError("User no longer exists", StatusCodes.UNAUTHORIZED));
+      return next(
+        new ApiError("User no longer exists", StatusCodes.UNAUTHORIZED),
+      );
     }
 
     if (user.changedPasswordAfter(decoded.iat)) {
-      return next(new ApiError("Password was changed. Please login again", StatusCodes.UNAUTHORIZED));
+      return next(
+        new ApiError(
+          "Password was changed. Please login again",
+          StatusCodes.UNAUTHORIZED,
+        ),
+      );
     }
 
     req.user = decoded;

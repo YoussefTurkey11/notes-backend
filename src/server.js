@@ -1,16 +1,17 @@
 import dotenv from "dotenv";
 import morgan from "morgan";
 import express from "express";
+import cookieParser from "cookie-parser";
+import swaggerUi from "swagger-ui-express";
+import cors from "cors";
 import notesRoutes from "./modules/notes/routes/notesRoutes.js";
 import authRoutes from "./modules/auth/routes/authRoute.js";
+import userRouter from "./modules/users/routes/userRoute.js";
 import { connectDB } from "./config/db.js";
 import rateLimiter from "./middleware/rateLimiter.js";
 import globalError from "./middleware/error.js";
 import ApiError from "./utils/apiError.js";
-import cors from "cors";
 import corsOptions from "./config/cors/corsOptions.js";
-import cookieParser from "cookie-parser";
-import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./config/swagger.js";
 
 dotenv.config();
@@ -26,6 +27,7 @@ if (process.env.NODE_ENV === "development") {
 }
 app.use("/api/v1/notes", notesRoutes);
 app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/users", userRouter);
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec)); // swagger-documents
 

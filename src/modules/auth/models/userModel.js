@@ -21,7 +21,6 @@ const userSchema = new mongoose.Schema(
     emailVerifyToken: String,
     emailVerifyExpire: Date,
     phone: String,
-    profileImg: String,
     password: {
       type: String,
       required: [true, "This field is required"],
