@@ -1,12 +1,10 @@
-import dotenv from "dotenv";
 import { StatusCodes } from "http-status-codes";
 import asyncHandler from "express-async-handler";
 import ApiError from "../../../utils/apiError.js";
 import User from "../models/userModel.js";
 import * as authService from "../services/authService.js";
 import { sanitizeUser } from "../../../utils/sanitizeUser.js";
-
-dotenv.config();
+import config from "../../../config/index.js";
 
 // ============ Register ============
 export const register = asyncHandler(async (req, res) => {
@@ -19,7 +17,7 @@ export const register = asyncHandler(async (req, res) => {
     phone,
   });
 
-  const verifyUrl = `${process.env.CLIENT_URL}/verify-email/${verifyToken}`;
+  const verifyUrl = `${config.clientUrl}/verify-email/${verifyToken}`;
 
   res.status(StatusCodes.CREATED).json({
     message: "User registered successfully. Please verify your email.",

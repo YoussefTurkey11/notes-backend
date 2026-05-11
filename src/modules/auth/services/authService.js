@@ -8,6 +8,7 @@ import User from "../models/userModel.js";
 import { sanitizeUser } from "../../../utils/sanitizeUser.js";
 import { hashedToken } from "../../../utils/hashedToken.js";
 import { sendEmail } from "../../../utils/sendEmail.js";
+import config from "../../../config/index.js";
 
 // ============ Register ============
 export const register = async ({ fullName, email, password, phone }) => {
@@ -29,7 +30,7 @@ export const register = async ({ fullName, email, password, phone }) => {
 
   const token = generateToken({ id: newUser._id });
 
-  const verifyUrl = `${process.env.CLIENT_URL}/verify-email/${verifyToken}`;
+  const verifyUrl = `${config.clientUrl}/verify-email/${verifyToken}`;
 
   await sendEmail({
     to: email,
@@ -92,7 +93,7 @@ export const forgotPassword = async ({ email }) => {
 
   await user.save({ validateBeforeSave: false });
 
-  const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+  const resetUrl = `${config.clientUrl}/reset-password/${resetToken}`;
 
   await sendEmail({
     to: email,

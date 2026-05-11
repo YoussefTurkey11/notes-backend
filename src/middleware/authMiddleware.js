@@ -1,10 +1,8 @@
 import { StatusCodes } from "http-status-codes";
 import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
 import ApiError from "../utils/apiError.js";
 import User from "../modules/auth/models/userModel.js";
-
-dotenv.config();
+import config from "../config/index.js";
 
 export const protect = async (req, res, next) => {
   let token;
@@ -19,7 +17,7 @@ export const protect = async (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, config.jwtSecret);
     const user = await User.findById(decoded.id);
 
     if (!user) {

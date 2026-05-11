@@ -1,4 +1,3 @@
-import dotenv from "dotenv";
 import morgan from "morgan";
 import express from "express";
 import cookieParser from "cookie-parser";

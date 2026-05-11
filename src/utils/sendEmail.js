@@ -1,6 +1,5 @@
 import nodemailer from "nodemailer";
-import dotenv from "dotenv";
-dotenv.config();
+import config from "../config/index.js";
 
 export const sendEmail = async ({ to, subject, html }) => {
   const transporter = nodemailer.createTransport({
@@ -8,13 +7,13 @@ export const sendEmail = async ({ to, subject, html }) => {
     port: 587,
     secure: false,
     auth: {
-      user: process.env.BREVO_SMTP_LOGIN,
-      pass: process.env.BREVO_SMTP_KEY,
+      user: config.BrevoStempLogin,
+      pass: config.BrevoStempKey,
     },
   });
 
   await transporter.sendMail({
-    from: `"${process.env.EMAIL_FROM_NAME}" <${process.env.EMAIL_FROM}>`,
+    from: `"${config.EmailFromName}" <${config.EmailFrom}>`,
     to,
     subject,
     html,
